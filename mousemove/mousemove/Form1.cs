@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -47,6 +48,56 @@ namespace mousemove
                     mousePosCurve.Add(a);//曲线添加一个点
                     chart1.Series[0].Points.AddXY(a.time, a.yPos);//绘图，可视化
                 }
+            }
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
+            openFileDialog1.Filter = "csv files (*.csv)|*.csv|All files (*.*)|*.*";
+            openFileDialog1.FilterIndex = 1;
+            openFileDialog1.RestoreDirectory = true;
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                chart1.Series[0].Points.Clear();
+                mousePosCurve.Clear();
+                StreamReader sr = new StreamReader(openFileDialog1.FileName);
+                string strline;
+                string[] columns;
+                while ((strline = sr.ReadLine()) != null) //一次读入一行
+                {
+                    columns = strline.Split(','); //按逗号分割成多个列
+                    aPoint a;
+                    a.time = Convert.ToInt32(columns[0]); //字符串转化为整数
+                    a.yPos = Convert.ToInt32(columns[1]); //字符串转化为整数
+                    mousePosCurve.Add(a); //曲线中添加一个值
+                    chart1.Series[0].Points.AddXY(a.time, a.yPos); //可视化
+                }
+                sr.Close();
+
+
+            }
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+            saveFileDialog1.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+            saveFileDialog1.FilterIndex = 2;
+            saveFileDialog1.RestoreDirectory = true;
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                StreamWriter sw = new StreamWriter(saveFileDialog1.FileName, false, System.Text.Encoding.ASCII);
+                int n = mousePosCurve.Count();
+                for (int i = 0; i < n; i += 1)
+                {
+                    sw.Write(mousePosCurve[i].time.ToString() + ","
+                                              + mousePosCurve[i].yPos.ToString() + "\r\n");
+                }
+                sw.Close();
+
             }
 
         }
